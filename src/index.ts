@@ -83,17 +83,20 @@ const TOOLS = [
         file: { type: "string", description: "Filename in the claude-data store (e.g. 'my-project.md')" },
         workingDirs: { type: "array", items: { type: "string" }, description: "Local directories that trigger this project in /load" },
         writeBack: { type: "boolean", description: "Whether /project-sync can write back (default: true)" },
-        repo: {
-          type: "object",
-          description: "Optional GitHub repo to sync commits from",
-          properties: {
-            owner: { type: "string" },
-            name: { type: "string" },
-            branch: { type: "string" },
-            watchPaths: { type: "array", items: { type: "string" } },
-            maxCommits: { type: "number" },
+        repos: {
+          type: "array",
+          description: "GitHub repos to sync commits from (supports multiple per project)",
+          items: {
+            type: "object",
+            properties: {
+              owner: { type: "string" },
+              name: { type: "string" },
+              branch: { type: "string" },
+              watchPaths: { type: "array", items: { type: "string" } },
+              maxCommits: { type: "number" },
+            },
+            required: ["owner", "name"],
           },
-          required: ["owner", "name"],
         },
       },
       required: ["key", "keywords", "file"],
@@ -174,14 +177,14 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
           file: z.string(),
           workingDirs: z.array(z.string()).default([]),
           writeBack: z.boolean().default(true),
-          repo: z.object({
+          repos: z.array(z.object({
             owner: z.string(),
             name: z.string(),
             branch: z.string().default("main"),
             watchPaths: z.array(z.string()).default([]),
             maxCommits: z.number().default(20),
             lastSyncedCommit: z.string().default(""),
-          }).optional(),
+          })).default([]),
         }).parse(args);
         const { key, ...project } = input;
         return { content: [{ type: "text" as const, text: createProject(key, project, config, configPath) }] };

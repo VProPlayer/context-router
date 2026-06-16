@@ -26,7 +26,7 @@ export declare const ProjectSchema: z.ZodObject<{
     file: z.ZodString;
     workingDirs: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
     writeBack: z.ZodDefault<z.ZodBoolean>;
-    repo: z.ZodOptional<z.ZodObject<{
+    repos: z.ZodDefault<z.ZodArray<z.ZodObject<{
         owner: z.ZodString;
         name: z.ZodString;
         branch: z.ZodDefault<z.ZodString>;
@@ -47,33 +47,33 @@ export declare const ProjectSchema: z.ZodObject<{
         watchPaths?: string[] | undefined;
         lastSyncedCommit?: string | undefined;
         maxCommits?: number | undefined;
-    }>>;
+    }>, "many">>;
 }, "strip", z.ZodTypeAny, {
     keywords: string[];
     file: string;
     workingDirs: string[];
     writeBack: boolean;
-    repo?: {
+    repos: {
         owner: string;
         name: string;
         branch: string;
         watchPaths: string[];
         lastSyncedCommit: string;
         maxCommits: number;
-    } | undefined;
+    }[];
 }, {
     keywords: string[];
     file: string;
     workingDirs?: string[] | undefined;
     writeBack?: boolean | undefined;
-    repo?: {
+    repos?: {
         owner: string;
         name: string;
         branch?: string | undefined;
         watchPaths?: string[] | undefined;
         lastSyncedCommit?: string | undefined;
         maxCommits?: number | undefined;
-    } | undefined;
+    }[] | undefined;
 }>;
 export declare const ClaudeDataRepoSchema: z.ZodObject<{
     owner: z.ZodString;
@@ -108,7 +108,7 @@ export declare const ConfigSchema: z.ZodObject<{
         file: z.ZodString;
         workingDirs: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
         writeBack: z.ZodDefault<z.ZodBoolean>;
-        repo: z.ZodOptional<z.ZodObject<{
+        repos: z.ZodDefault<z.ZodArray<z.ZodObject<{
             owner: z.ZodString;
             name: z.ZodString;
             branch: z.ZodDefault<z.ZodString>;
@@ -129,33 +129,33 @@ export declare const ConfigSchema: z.ZodObject<{
             watchPaths?: string[] | undefined;
             lastSyncedCommit?: string | undefined;
             maxCommits?: number | undefined;
-        }>>;
+        }>, "many">>;
     }, "strip", z.ZodTypeAny, {
         keywords: string[];
         file: string;
         workingDirs: string[];
         writeBack: boolean;
-        repo?: {
+        repos: {
             owner: string;
             name: string;
             branch: string;
             watchPaths: string[];
             lastSyncedCommit: string;
             maxCommits: number;
-        } | undefined;
+        }[];
     }, {
         keywords: string[];
         file: string;
         workingDirs?: string[] | undefined;
         writeBack?: boolean | undefined;
-        repo?: {
+        repos?: {
             owner: string;
             name: string;
             branch?: string | undefined;
             watchPaths?: string[] | undefined;
             lastSyncedCommit?: string | undefined;
             maxCommits?: number | undefined;
-        } | undefined;
+        }[] | undefined;
     }>>;
 }, "strip", z.ZodTypeAny, {
     claudeDataRepo: {
@@ -168,14 +168,14 @@ export declare const ConfigSchema: z.ZodObject<{
         file: string;
         workingDirs: string[];
         writeBack: boolean;
-        repo?: {
+        repos: {
             owner: string;
             name: string;
             branch: string;
             watchPaths: string[];
             lastSyncedCommit: string;
             maxCommits: number;
-        } | undefined;
+        }[];
     }>;
     claudeDataLocal?: string | undefined;
 }, {
@@ -189,14 +189,14 @@ export declare const ConfigSchema: z.ZodObject<{
         file: string;
         workingDirs?: string[] | undefined;
         writeBack?: boolean | undefined;
-        repo?: {
+        repos?: {
             owner: string;
             name: string;
             branch?: string | undefined;
             watchPaths?: string[] | undefined;
             lastSyncedCommit?: string | undefined;
             maxCommits?: number | undefined;
-        } | undefined;
+        }[] | undefined;
     }>;
     claudeDataLocal?: string | undefined;
 }>;

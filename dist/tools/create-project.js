@@ -17,7 +17,7 @@ export function createProject(key, project, config, configPath) {
         `- **File:** ${project.file} (create this in your claude-data repo/local clone)\n` +
         `- **Keywords:** ${project.keywords.join(", ")}\n` +
         `- **Working dirs:** ${project.workingDirs.join(", ") || "none"}\n` +
-        (project.repo ? `- **Repo:** ${project.repo.owner}/${project.repo.name}\n` : "") +
+        (project.repos.length > 0 ? `- **Repos:** ${project.repos.map((r) => `${r.owner}/${r.name}`).join(", ")}\n` : "") +
         `\nNext: create \`${project.file}\` in your claude-data store with initial project context.`);
 }
 //# sourceMappingURL=create-project.js.map

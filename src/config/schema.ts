@@ -14,7 +14,7 @@ export const ProjectSchema = z.object({
   file: z.string(),
   workingDirs: z.array(z.string()).default([]),
   writeBack: z.boolean().default(true),
-  repo: RepoConfigSchema.optional(),
+  repos: z.array(RepoConfigSchema).default([]),
 });
 
 export const ClaudeDataRepoSchema = z.object({

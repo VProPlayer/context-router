@@ -22,7 +22,7 @@ const TOOLS = [
     description:
       "Load the most relevant project context file by scoring keyword matches. " +
       "Call proactively when the user mentions a project by name, acronym, or topic — even in natural language (e.g. 'let's work on courtquest', 'pull up my VV context'). " +
-      "Also call when the user types /context followed by any keyword. " +
+      "Also call when the user types /route followed by any keyword. " +
       "Returns the full .md content for the best-matching project.",
     inputSchema: {
       type: "object" as const,
@@ -56,7 +56,7 @@ const TOOLS = [
     name: "list_projects",
     description:
       "List all configured projects — keys, keywords, files, working directories, and repo info. " +
-      "Call when the user types /context with no argument, asks 'what projects do I have', 'show my projects', or similar.",
+      "Call when the user types /route with no argument, asks 'what projects do I have', 'show my projects', or similar.",
     inputSchema: { type: "object" as const, properties: {} },
   },
   {

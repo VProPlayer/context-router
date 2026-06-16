@@ -7,9 +7,9 @@ You have access to context-router MCP tools for loading and saving project conte
 
 ### Loading context
 
-**\`/context [project]\`** or natural language (e.g. "let's work on courtquest", "pull up my VV context") — Call \`read_project\` immediately with the relevant terms as keywords. Do not ask for clarification first.
+**\`/route [project]\`** or natural language (e.g. "let's work on courtquest", "pull up my VV context") — Call \`read_project\` immediately with the relevant terms as keywords. Do not ask for clarification first.
 
-**\`/context\` (no argument)** or "what projects do I have" — Call \`list_projects\`, then ask which one to load.
+**\`/route\` (no argument)** or "what projects do I have" — Call \`list_projects\`, then ask which one to load.
 
 ### Saving context
 

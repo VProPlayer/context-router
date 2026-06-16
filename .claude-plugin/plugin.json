@@ -1,0 +1,24 @@
+{
+  "name": "context-router",
+  "version": "1.0.0",
+  "description": "Automatic project memory routing — loads the right context file based on working directory or topic signals, writes state back on demand.",
+  "author": {
+    "name": "vedantchaudhari",
+    "url": "https://github.com/vedantchaudhari"
+  },
+  "homepage": "https://github.com/vedantchaudhari/context-router",
+  "repository": "https://github.com/vedantchaudhari/context-router",
+  "license": "MIT",
+  "keywords": ["context", "project-memory", "routing", "mcp", "claude-code"],
+  "mcpServers": {
+    "context-router": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/dist/index.js"],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}",
+        "CONTEXT_ROUTER_CONFIG": "${CONTEXT_ROUTER_CONFIG}"
+      }
+    }
+  },
+  "skills": "./skills/"
+}

@@ -1,0 +1,38 @@
+{
+  "claudeDataRepo": {
+    "owner": "YOUR_GITHUB_USERNAME",
+    "name": "claude-data",
+    "branch": "main"
+  },
+  "claudeDataLocal": "~/ClaudeData",
+  "projects": {
+    "courtquest": {
+      "keywords": ["CourtQuest", "CQ", "CV pipeline", "FOIA"],
+      "file": "courtquest.md",
+      "workingDirs": ["~/Developer/cq-swift-app"],
+      "writeBack": true,
+      "repo": {
+        "owner": "YOUR_GITHUB_USERNAME",
+        "name": "cq-swift-app",
+        "branch": "main",
+        "watchPaths": ["src/", "README.md"],
+        "lastSyncedCommit": "",
+        "maxCommits": 20
+      }
+    },
+    "vv": {
+      "keywords": ["VV", "RAG", "Ollama", "DSPy", "Presidio"],
+      "file": "vv.md",
+      "workingDirs": ["~/Developer/vv"],
+      "writeBack": true,
+      "repo": {
+        "owner": "YOUR_GITHUB_USERNAME",
+        "name": "vv",
+        "branch": "main",
+        "watchPaths": ["src/", "README.md"],
+        "lastSyncedCommit": "",
+        "maxCommits": 20
+      }
+    }
+  }
+}

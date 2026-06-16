@@ -1,0 +1,16 @@
+{
+  "description": "context-router hooks — SessionStart injects project context based on working directory",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/sessionstart.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}

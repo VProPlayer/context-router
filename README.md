@@ -79,10 +79,20 @@ export GITHUB_TOKEN=ghp_your_token_here
 
 Create a **private** repo on GitHub named `claude-data` (or whatever you set in config).
 
-Create a `.md` file for each project you configured and push it:
+The repo is a flat collection of `.md` files — one per project, all at the root:
+
+```
+claude-data/
+├── my-project.md
+├── another-project.md
+└── ...
+```
+
+The `file` field in your config maps directly to the filename. Subfolders are supported (`"file": "work/my-project.md"`) but not required.
+
+Push an initial file for each project you configured:
 
 ```bash
-# On GitHub: create the repo, then push an initial file via the API or locally:
 echo "# My Project\n\nProject context goes here." > my-project.md
 git init && git add . && git commit -m "init" && git branch -M main
 git remote add origin https://github.com/your-username/claude-data.git

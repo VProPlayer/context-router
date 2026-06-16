@@ -1,0 +1,15 @@
+{
+  "name": "context-router",
+  "metadata": {
+    "description": "Automatic cross-surface project memory routing for Claude Code"
+  },
+  "owner": {
+    "name": "VProPlayer"
+  },
+  "plugins": [
+    {
+      "name": "context-router",
+      "source": "."
+    }
+  ]
+}

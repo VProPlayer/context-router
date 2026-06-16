@@ -8,13 +8,13 @@ No more re-explaining context at the start of every session.
 
 ## How it works
 
-All project context lives in a single private GitHub repo (`claude-data`). On desktop, a local clone keeps reads fast and offline. The plugin routes between projects by keyword scoring and directory matching — load the right file, write it back when you're done.
+All project context lives in a single private GitHub repo (`claude-data`). The plugin routes between projects by keyword scoring and directory matching — load the right file, write it back when you're done. Reads and writes go through the GitHub API by default; a local clone is optional and not recommended (see [Config reference](#config-reference)).
 
 **Claude Code** — `/load` is the single entry point for both project context and codebase loading. It checks the current directory for a matching project, loads its context file first, then reads the codebase as normal. `/context-router:project-sync` merges session state + recent repo commits back into the context file and pushes atomically.
 
 **Claude.ai chat** — run `/context-router:project-instructions` once to generate a custom instructions block. Paste it into your Claude.ai Project settings. After that, `/load [project]` in any chat message triggers `read_project` reliably.
 
-At session start, the plugin runs `git pull` on your local clone (if configured) so it stays current. All reads and writes go through the GitHub API by default — see [Config reference](#config-reference) for the `claudeDataLocal` trade-offs.
+At session start, the plugin runs `git pull` on your local clone if `claudeDataLocal` is configured — otherwise no local action is taken. See [Config reference](#config-reference) for `claudeDataLocal` trade-offs.
 
 ---
 
@@ -77,18 +77,19 @@ export GITHUB_TOKEN=ghp_your_token_here
 
 ### 4. Create your claude-data repo
 
-Create a **private** repo on GitHub named `claude-data` (or whatever you set in config). Clone it to the path you set in `claudeDataLocal`:
+Create a **private** repo on GitHub named `claude-data` (or whatever you set in config).
+
+Create a `.md` file for each project you configured and push it:
 
 ```bash
-git clone https://github.com/your-username/claude-data.git ~/ClaudeData
+# On GitHub: create the repo, then push an initial file via the API or locally:
+echo "# My Project\n\nProject context goes here." > my-project.md
+git init && git add . && git commit -m "init" && git branch -M main
+git remote add origin https://github.com/your-username/claude-data.git
+git push -u origin main
 ```
 
-Create a `.md` file for each project you configured:
-
-```bash
-echo "# My Project\n\nProject context goes here." > ~/ClaudeData/my-project.md
-cd ~/ClaudeData && git add . && git commit -m "init" && git push
-```
+> **Note:** A local clone (`claudeDataLocal`) is not required and not recommended — a stale or diverged clone can cause the plugin to read outdated context. The GitHub API is the default for all reads and writes. Only set `claudeDataLocal` if you have a specific offline use case and understand the trade-offs.
 
 ### 5. Install the plugin in Claude Code
 

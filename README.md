@@ -4,6 +4,8 @@ A Claude Code plugin and MCP server that gives Claude persistent, cross-surface 
 
 No more re-explaining context at the start of every session.
 
+NOTE: this is a work in progress. Expect troubleshooting occasionally.
+
 ---
 
 ## How it works
@@ -16,7 +18,7 @@ All project context lives in a single private GitHub repo (`claude-data`). The p
 
 **Claude.ai web chat** — the web app cannot connect to local MCP servers. Run `/context-router:project-instructions` once to generate a custom instructions block and paste it into your Claude.ai Project settings. After that, `/context [project]` in any chat message triggers `read_project` reliably.
 
-At session start, the plugin runs `git pull` on your local clone if `claudeDataLocal` is configured — otherwise no local action is taken. See [Config reference](#config-reference) for `claudeDataLocal` trade-offs.
+At Claude Code session start, the plugin runs `git pull` on your local clone if `claudeDataLocal` is configured — otherwise no local action is taken. See [Config reference](#config-reference) for `claudeDataLocal` trade-offs.
 
 ---
 

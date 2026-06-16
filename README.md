@@ -1,6 +1,6 @@
 # context-router
 
-A Claude Code plugin and MCP server that gives Claude persistent, cross-surface project memory. Load the right context for any project on demand — in Claude Code via `/load`, in the Claude desktop app via the MCP server, or in Claude.ai web chat via a generated custom instructions block. Write state back with `/context-router:project-sync`.
+A Claude Code plugin and MCP server that gives Claude persistent, cross-surface project memory. Load the right context for any project on demand — in Claude Code via `/context`, in the Claude desktop app via the MCP server, or in Claude.ai web chat via a generated custom instructions block. Write state back with `/context-router:project-sync`.
 
 No more re-explaining context at the start of every session.
 
@@ -10,11 +10,11 @@ No more re-explaining context at the start of every session.
 
 All project context lives in a single private GitHub repo (`claude-data`). The plugin routes between projects by keyword scoring and directory matching — load the right file, write it back when you're done. Reads and writes go through the GitHub API by default; a local clone is optional and not recommended (see [Config reference](#config-reference)).
 
-**Claude Code** — `/load` is the single entry point for both project context and codebase loading. It checks the current directory for a matching project, loads its context file first, then reads the codebase as normal. `/context-router:project-sync` merges session state + recent repo commits back into the context file and pushes atomically.
+**Claude Code** — `/context` is the single entry point for both project context and codebase loading. It checks the current directory for a matching project, loads its context file first, then reads the codebase as normal. `/context-router:project-sync` merges session state + recent repo commits back into the context file and pushes atomically.
 
 **Claude desktop app** — add the MCP server to `claude_desktop_config.json` (see [Desktop app setup](#desktop-app-setup)). All 8 tools are available natively — no custom instructions needed.
 
-**Claude.ai web chat** — the web app cannot connect to local MCP servers. Run `/context-router:project-instructions` once to generate a custom instructions block and paste it into your Claude.ai Project settings. After that, `/load [project]` in any chat message triggers `read_project` reliably.
+**Claude.ai web chat** — the web app cannot connect to local MCP servers. Run `/context-router:project-instructions` once to generate a custom instructions block and paste it into your Claude.ai Project settings. After that, `/context [project]` in any chat message triggers `read_project` reliably.
 
 At session start, the plugin runs `git pull` on your local clone if `claudeDataLocal` is configured — otherwise no local action is taken. See [Config reference](#config-reference) for `claudeDataLocal` trade-offs.
 
@@ -133,15 +133,15 @@ If you already have other plugins in `enabledPlugins` or `extraKnownMarketplaces
 
 ### Loading context
 
-`/load` is the single command for both project context and codebase loading. It tries to load project context first (by matching the current directory or keywords you pass), then reads the codebase as normal.
+`/context` is the single command for both project context and codebase loading. It tries to load project context first (by matching the current directory or keywords you pass), then reads the codebase as normal.
 
 ```
-/load                  ← matches cwd to a project, then reads codebase
-/load courtquest       ← loads courtquest context, then reads codebase
-/load vv               ← loads vv context, then reads codebase
+/context                  ← matches cwd to a project, then reads codebase
+/context courtquest       ← loads courtquest context, then reads codebase
+/context vv               ← loads vv context, then reads codebase
 ```
 
-If the current directory doesn't match any configured project and no keyword is passed, `/load` skips project context silently and proceeds to codebase loading.
+If the current directory doesn't match any configured project and no keyword is passed, `/context` skips project context silently and proceeds to codebase loading.
 
 ### Writing context back
 
@@ -169,11 +169,16 @@ Add context-router to `~/Library/Application Support/Claude/claude_desktop_confi
   "mcpServers": {
     "context-router": {
       "command": "node",
-      "args": ["/path/to/context-router/dist/index.js"]
+      "args": ["/path/to/context-router/dist/index.js"],
+      "env": {
+        "GITHUB_TOKEN": "your_github_token_here"
+      }
     }
   }
 }
 ```
+
+The `env` block is required — the Claude desktop app does not inherit shell environment variables, so `GITHUB_TOKEN` must be passed explicitly here.
 
 Restart the Claude desktop app. All 8 MCP tools will appear under `context-router` in any conversation.
 
@@ -190,8 +195,8 @@ Run this once in Claude Code:
 Copy the output and paste it into your Claude.ai Project instructions. After that, in any chat:
 
 ```
-/load my-project        ← calls read_project immediately
-/load                   ← lists projects and asks which to load
+/context my-project        ← calls read_project immediately
+/context                   ← lists projects and asks which to load
 /save                   ← triggers write_project with confirmation
 ```
 
@@ -235,7 +240,7 @@ The instructions contain no project names or keywords — those live in the MCP 
 | `projects` | yes | Map of project key → config |
 | `keywords` | yes | Topic signals for keyword routing. Include the project name, acronyms, and domain terms |
 | `file` | yes | Filename in the claude-data store (e.g. `my-project.md`) |
-| `workingDirs` | no | Directories that trigger this project in `/load` |
+| `workingDirs` | no | Directories that trigger this project in `/context` |
 | `writeBack` | no | Set to `false` to make the project read-only (default: `true`) |
 | `repo` | no | Project's source code repo for `/project-sync` commit history |
 | `repo.watchPaths` | no | Only report changes under these paths during sync (supports multiple repositories) |
@@ -289,9 +294,9 @@ Or delete the cloned directory entirely.
 
 | Surface | MCP tools | Slash commands | Write-back |
 |---|---|---|---|
-| Claude Code | Native (stdio) | `/load [project]`, `/context-router:project-sync`, `/context-router:project-new`, `/context-router:project-end`, `/context-router:project-instructions` | GitHub API |
-| Claude desktop app | Native (stdio) | `/load`, `/save` | GitHub API |
-| Claude.ai web chat | Not supported — use custom instructions workaround | `/load`, `/save` (enforced by instructions) | GitHub API |
+| Claude Code | Native (stdio) | `/context [project]`, `/context-router:project-sync`, `/context-router:project-new`, `/context-router:project-end`, `/context-router:project-instructions` | GitHub API |
+| Claude desktop app | Native (stdio) | `/context`, `/save` | GitHub API |
+| Claude.ai web chat | Not supported — use custom instructions workaround | `/context`, `/save` (enforced by instructions) | GitHub API |
 
 ---
 

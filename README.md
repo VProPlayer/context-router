@@ -209,7 +209,7 @@ The instructions contain no project names or keywords — those live in the MCP 
 | `workingDirs` | no | Directories that trigger this project in `/load` |
 | `writeBack` | no | Set to `false` to make the project read-only (default: `true`) |
 | `repo` | no | Project's source code repo for `/project-sync` commit history |
-| `repo.watchPaths` | no | Only report changes under these paths during sync |
+| `repo.watchPaths` | no | Only report changes under these paths during sync (supports multiple repositories) |
 | `repo.lastSyncedCommit` | no | SHA of last synced commit. Updated manually after each sync |
 | `repo.maxCommits` | no | Cap on commits fetched per sync (default: 20) |
 

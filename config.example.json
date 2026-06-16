@@ -4,30 +4,21 @@
     "name": "claude-data",
     "branch": "main"
   },
-  "claudeDataLocal": "~/ClaudeData",
   "projects": {
-    "courtquest": {
-      "keywords": ["CourtQuest", "CQ", "CV pipeline", "FOIA"],
-      "file": "courtquest.md",
-      "workingDirs": ["~/Developer/cq-swift-app"],
-      "writeBack": true,
-      "repo": {
-        "owner": "YOUR_GITHUB_USERNAME",
-        "name": "cq-swift-app",
-        "branch": "main",
-        "watchPaths": ["src/", "README.md"],
-        "lastSyncedCommit": "",
-        "maxCommits": 20
-      }
+    "project-one": {
+      "keywords": ["Project One", "P1", "relevant-term"],
+      "file": "project-one.md",
+      "workingDirs": ["~/Developer/project-one"],
+      "writeBack": true
     },
-    "vv": {
-      "keywords": ["VV", "RAG", "Ollama", "DSPy", "Presidio"],
-      "file": "vv.md",
-      "workingDirs": ["~/Developer/vv"],
+    "project-two": {
+      "keywords": ["Project Two", "P2", "another-term"],
+      "file": "project-two.md",
+      "workingDirs": ["~/Developer/project-two"],
       "writeBack": true,
       "repo": {
         "owner": "YOUR_GITHUB_USERNAME",
-        "name": "vv",
+        "name": "project-two-repo",
         "branch": "main",
         "watchPaths": ["src/", "README.md"],
         "lastSyncedCommit": "",

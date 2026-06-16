@@ -1,10 +1,9 @@
 import { readFileSync } from "node:fs";
-import { homedir } from "node:os";
-import { resolve } from "node:path";
 import { ConfigSchema } from "./schema.js";
-const DEFAULT_CONFIG_PATH = resolve(homedir(), ".config", "context-router", "config.json");
+import { getConfigPath } from "../utils/path.js";
+export { expandHome } from "../utils/path.js";
 export function loadConfig(configPath) {
-    const path = configPath ?? process.env.CONTEXT_ROUTER_CONFIG ?? DEFAULT_CONFIG_PATH;
+    const path = configPath ?? getConfigPath();
     let raw;
     try {
         raw = JSON.parse(readFileSync(path, "utf-8"));
@@ -15,8 +14,5 @@ export function loadConfig(configPath) {
             `See config.example.json for the schema. (${err instanceof Error ? err.message : err})`);
     }
     return ConfigSchema.parse(raw);
-}
-export function expandHome(p) {
-    return p.startsWith("~/") ? resolve(homedir(), p.slice(2)) : p;
 }
 //# sourceMappingURL=loader.js.map

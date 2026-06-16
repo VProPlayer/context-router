@@ -1,8 +1,8 @@
 import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { execSync } from "node:child_process";
-import { getGitHubClient } from "../github/client.js";
-import { expandHome } from "../config/loader.js";
+import { getGitHubClient, getClaudeDataFileSha } from "../github/client.js";
+import { expandHome } from "../utils/path.js";
 import type { Config } from "../config/schema.js";
 
 export async function writeProject(config: Config, projectKey: string, content: string): Promise<string> {
@@ -13,31 +13,27 @@ export async function writeProject(config: Config, projectKey: string, content: 
   if (config.claudeDataLocal) {
     const localDir = expandHome(config.claudeDataLocal);
     const filePath = resolve(localDir, project.file);
-    try {
-      writeFileSync(filePath, content, "utf-8");
-      execSync(`git -C "${localDir}" add "${project.file}"`, { stdio: "pipe" });
-      execSync(`git -C "${localDir}" commit -m "context-router: update ${project.file}"`, { stdio: "pipe" });
-      execSync(`git -C "${localDir}" push`, { stdio: "pipe" });
-      return `Written and pushed: ${project.file}`;
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      throw new Error(`Local write/push failed for ${project.file}: ${msg}`);
+    const steps: Array<[string, string]> = [
+      [`git -C "${localDir}" add "${project.file}"`, "git add"],
+      [`git -C "${localDir}" commit -m "context-router: update ${project.file}"`, "git commit"],
+      [`git -C "${localDir}" push`, "git push"],
+    ];
+
+    writeFileSync(filePath, content, "utf-8");
+    for (const [cmd, label] of steps) {
+      try {
+        execSync(cmd, { stdio: "pipe" });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        throw new Error(`${label} failed for ${project.file}: ${msg}`);
+      }
     }
+    return `Written and pushed: ${project.file}`;
   }
 
-  // GitHub API path (mobile / no local clone)
   const gh = getGitHubClient();
   const { claudeDataRepo: repo } = config;
-
-  let sha: string | undefined;
-  try {
-    const existing = await gh.repos.getContent({ owner: repo.owner, repo: repo.name, path: project.file, ref: repo.branch });
-    if (!Array.isArray(existing.data) && "sha" in existing.data) {
-      sha = existing.data.sha as string;
-    }
-  } catch {
-    // file doesn't exist yet — create it
-  }
+  const sha = await getClaudeDataFileSha(config, project.file);
 
   await gh.repos.createOrUpdateFileContents({
     owner: repo.owner,

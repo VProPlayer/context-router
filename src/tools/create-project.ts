@@ -1,35 +1,13 @@
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { homedir } from "node:os";
-import { ConfigSchema, ProjectSchema, type Project } from "../config/schema.js";
-import { expandHome } from "../config/loader.js";
+import { writeFileSync, mkdirSync } from "node:fs";
+import { dirname } from "node:path";
+import { ProjectSchema, type Project, type Config } from "../config/schema.js";
 
-const DEFAULT_CONFIG_PATH = resolve(homedir(), ".config", "context-router", "config.json");
-
-function getConfigPath(): string {
-  return process.env.CONTEXT_ROUTER_CONFIG ?? DEFAULT_CONFIG_PATH;
-}
-
-export function createProject(key: string, project: Project): string {
+export function createProject(key: string, project: Project, config: Config, configPath: string): string {
   if (!/^[a-z0-9-]+$/.test(key)) {
     throw new Error(`Project key must be lowercase alphanumeric with hyphens only. Got: "${key}"`);
   }
 
-  // Validate project shape before touching disk
   ProjectSchema.parse(project);
-
-  const configPath = getConfigPath();
-  let raw: unknown;
-  try {
-    raw = JSON.parse(readFileSync(configPath, "utf-8"));
-  } catch {
-    throw new Error(
-      `Config not found at ${configPath}. ` +
-      `Create it first from config.example.json.`
-    );
-  }
-
-  const config = ConfigSchema.parse(raw);
 
   if (config.projects[key]) {
     throw new Error(
@@ -38,11 +16,9 @@ export function createProject(key: string, project: Project): string {
     );
   }
 
-  config.projects[key] = project;
-
-  // Ensure directory exists (idempotent)
+  const updated = { ...config, projects: { ...config.projects, [key]: project } };
   mkdirSync(dirname(configPath), { recursive: true });
-  writeFileSync(configPath, JSON.stringify(config, null, 2) + "\n", "utf-8");
+  writeFileSync(configPath, JSON.stringify(updated, null, 2) + "\n", "utf-8");
 
   return (
     `Project "${key}" added to config.\n\n` +

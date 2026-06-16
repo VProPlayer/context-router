@@ -1,6 +1,6 @@
 # context-router
 
-A Claude Code plugin that gives Claude persistent, cross-surface project memory. Load the right context for any project on demand — in Claude Code via `/load`, in Claude.ai chat via a generated custom instructions block. Write state back with a single slash command.
+A Claude Code plugin and MCP server that gives Claude persistent, cross-surface project memory. Load the right context for any project on demand — in Claude Code via `/load`, in Claude.ai chat via a generated custom instructions block. Write state back with `/context-router:project-sync`.
 
 No more re-explaining context at the start of every session.
 
@@ -10,11 +10,11 @@ No more re-explaining context at the start of every session.
 
 All project context lives in a single private GitHub repo (`claude-data`). On desktop, a local clone keeps reads fast and offline. The plugin routes between projects by keyword scoring and directory matching — load the right file, write it back when you're done.
 
-**Claude Code** — `/load` checks the current directory and calls `read_project` if a matching project is configured. `/project-sync` merges session state + recent repo commits back into the context file and pushes atomically.
+**Claude Code** — `/load` is the single entry point for both project context and codebase loading. It checks the current directory for a matching project, loads its context file first, then reads the codebase as normal. `/context-router:project-sync` merges session state + recent repo commits back into the context file and pushes atomically.
 
 **Claude.ai chat** — run `/context-router:project-instructions` once to generate a custom instructions block. Paste it into your Claude.ai Project settings. After that, `/load [project]` in any chat message triggers `read_project` reliably.
 
-At session start, the plugin runs `git pull` on your local clone so you're always working with current context.
+At session start, the plugin runs `git pull` on your local clone (if configured) so it stays current. All reads and writes go through the GitHub API by default — see [Config reference](#config-reference) for the `claudeDataLocal` trade-offs.
 
 ---
 
@@ -110,13 +110,15 @@ Or install via the Claude Code plugin manager using the repo URL.
 
 ### Loading context
 
-In Claude Code, `/load` now automatically tries to load project context before reading the codebase. If your current directory matches a configured `workingDir`, it loads that project. You can also pass a name explicitly:
+`/load` is the single command for both project context and codebase loading. It tries to load project context first (by matching the current directory or keywords you pass), then reads the codebase as normal.
 
 ```
-/load courtquest
-/load vv
-/load                  ← lists projects and asks
+/load                  ← matches cwd to a project, then reads codebase
+/load courtquest       ← loads courtquest context, then reads codebase
+/load vv               ← loads vv context, then reads codebase
 ```
+
+If the current directory doesn't match any configured project and no keyword is passed, `/load` skips project context silently and proceeds to codebase loading.
 
 ### Writing context back
 
@@ -137,7 +139,7 @@ This reads the current context file, optionally pulls recent repo commits, merge
 
 ### Claude.ai chat setup
 
-Run this once (and re-run after adding/removing projects):
+Run this once:
 
 ```
 /context-router:project-instructions
@@ -147,8 +149,11 @@ Copy the output and paste it into your Claude.ai Project instructions. After tha
 
 ```
 /load my-project        ← calls read_project immediately
+/load                   ← lists projects and asks which to load
 /save                   ← triggers write_project with confirmation
 ```
+
+The instructions contain no project names or keywords — those live in the MCP server. You never need to update the pasted instructions when adding or removing projects.
 
 ---
 
@@ -184,7 +189,7 @@ Copy the output and paste it into your Claude.ai Project instructions. After tha
 | Field | Required | Description |
 |---|---|---|
 | `claudeDataRepo` | yes | GitHub repo holding your `.md` context files |
-| `claudeDataLocal` | no | Local clone path. If set, reads/writes go here first; GitHub API is the fallback |
+| `claudeDataLocal` | no | Local clone path. If set, reads/writes go here first; GitHub API is the fallback. **Not recommended** — a stale or diverged local clone can cause mismatches between what Claude reads and what's actually in the repo. Prefer omitting this and using the GitHub API exclusively for consistent reads. |
 | `projects` | yes | Map of project key → config |
 | `keywords` | yes | Topic signals for keyword routing. Include the project name, acronyms, and domain terms |
 | `file` | yes | Filename in the claude-data store (e.g. `my-project.md`) |
@@ -242,7 +247,7 @@ Or delete the cloned directory entirely.
 
 | Surface | Auto-load | Slash commands | Write-back |
 |---|---|---|---|
-| Claude Code | Via `/load` (checks cwd) | `/project-sync`, `/project-new`, `/project-end`, `/project-instructions` | Local git push |
+| Claude Code | `/load` (checks cwd, then reads codebase) | `/load [project]`, `/context-router:project-sync`, `/context-router:project-new`, `/context-router:project-end`, `/context-router:project-instructions` | Local git push |
 | Claude.ai chat | Keyword detection via custom instructions | `/load`, `/save` (enforced by instructions) | GitHub API |
 | Claude.ai Cowork | Keyword detection via custom instructions | Same as chat | GitHub API |
 

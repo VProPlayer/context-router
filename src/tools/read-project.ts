@@ -1,7 +1,5 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { getGitHubClient } from "../github/client.js";
-import { expandHome } from "../config/loader.js";
+import { expandHome } from "../utils/path.js";
+import { getClaudeDataFile } from "../github/client.js";
 import type { Config } from "../config/schema.js";
 
 function scoreProject(projectKeywords: string[], queryKeywords: string[]): number {
@@ -24,30 +22,10 @@ export async function readProject(config: Config, keywords: string[]): Promise<s
 
   const best = scored[0];
   if (!best || best.score === 0) {
-    const available = Object.keys(config.projects).join(", ");
-    return `No project matched keywords: [${keywords.join(", ")}]. Available projects: ${available}`;
+    return `No project matched keywords: [${keywords.join(", ")}]. Available: ${Object.keys(config.projects).join(", ")}`;
   }
 
-  const project = config.projects[best.key];
-
-  if (config.claudeDataLocal) {
-    try {
-      const path = resolve(expandHome(config.claudeDataLocal), project.file);
-      return readFileSync(path, "utf-8");
-    } catch {
-      // fall through to GitHub API
-    }
-  }
-
-  const gh = getGitHubClient();
-  const { claudeDataRepo: repo } = config;
-  const res = await gh.repos.getContent({ owner: repo.owner, repo: repo.name, path: project.file, ref: repo.branch });
-
-  if (Array.isArray(res.data) || !("content" in res.data)) {
-    throw new Error(`Unexpected response fetching ${project.file}`);
-  }
-
-  return Buffer.from(res.data.content as string, "base64").toString("utf-8");
+  return getClaudeDataFile(config, config.projects[best.key].file);
 }
 
 export function matchProjectByDir(config: Config, cwd: string): { key: string; file: string } | null {

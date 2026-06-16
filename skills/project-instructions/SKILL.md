@@ -11,7 +11,7 @@ Call `generate_instructions` and present the output to the user with these notes
 
 1. **Where to paste:** claude.ai → select a Project → Project instructions (or Settings → Custom instructions for account-level).
 
-2. **Keep in sync:** Re-run `/context-router:project-instructions` after any `/project-new` or `/project-end` — the keywords section is generated from your live config, so it always reflects the current state.
+2. **Never needs updating:** The instructions contain no project names or keywords — those live in the MCP server. Paste once and forget it. Adding or removing projects via `/project-new` or `/project-end` requires no change to the instructions.
 
 3. **How `/load` works in chat:** The instructions define `/load [project]` as a trigger phrase. In claude.ai, type `/load courtquest` (or any keyword) and Claude will call `read_project` immediately. No plugin required — it's enforced by the custom instructions.
 

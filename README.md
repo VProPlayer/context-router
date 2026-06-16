@@ -105,17 +105,25 @@ git push -u origin main
 
 ### 5. Install the plugin in Claude Code
 
-In Claude Code, open settings and add the plugin directory:
+Add context-router to `~/.claude/settings.json` using Claude Code's `extraKnownMarketplaces` system:
 
 ```json
 {
-  "plugins": [
-    "/path/to/context-router"
-  ]
+  "enabledPlugins": {
+    "context-router@context-router": true
+  },
+  "extraKnownMarketplaces": {
+    "context-router": {
+      "source": {
+        "source": "github",
+        "repo": "VProPlayer/context-router"
+      }
+    }
+  }
 }
 ```
 
-Or install via the Claude Code plugin manager using the repo URL (coming soon).
+If you already have other plugins in `enabledPlugins` or `extraKnownMarketplaces`, add these entries to the existing objects — don't replace them. Restart Claude Code after saving.
 
 ---
 
@@ -236,7 +244,7 @@ These are available directly in Claude Code and any claude.ai surface with the M
 
 ### Remove the plugin from Claude Code
 
-Remove the entry from your `plugins` array in Claude Code settings. The plugin stops running immediately.
+Remove the `"context-router@context-router"` entry from `enabledPlugins` and the `"context-router"` entry from `extraKnownMarketplaces` in `~/.claude/settings.json`. The plugin stops running immediately after restarting Claude Code.
 
 ### Remove config and data
 

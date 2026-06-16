@@ -67,9 +67,11 @@ Edit `~/.config/context-router/config.json`:
 
 See [Config reference](#config-reference) for all options including repo sync.
 
-### 3. Set your GitHub token
+### 3. Create a GitHub token
 
-Add to `~/.zshrc` (or `~/.bashrc`):
+Go to **GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token (classic)**. Enable the `repo` scope (required to read and write files in your private `claude-data` repo).
+
+Add the token to `~/.zshrc` (or `~/.bashrc`):
 
 ```bash
 export GITHUB_TOKEN=ghp_your_token_here

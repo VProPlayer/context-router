@@ -133,9 +133,9 @@ If you already have other plugins in `enabledPlugins` or `extraKnownMarketplaces
 
 ## Usage
 
-### Loading context
+### Claude Code
 
-`/context` is the single command for both project context and codebase loading. It tries to load project context first (by matching the current directory or keywords you pass), then reads the codebase as normal.
+`/context` is the single entry point for both project context and codebase loading. It checks the current directory for a matching project first, then reads the codebase as normal.
 
 ```
 /context                  ← matches cwd to a project, then reads codebase
@@ -143,24 +143,20 @@ If you already have other plugins in `enabledPlugins` or `extraKnownMarketplaces
 /context vv               ← loads vv context, then reads codebase
 ```
 
-If the current directory doesn't match any configured project and no keyword is passed, `/context` skips project context silently and proceeds to codebase loading.
+If no project matches, `/context` skips project context silently and proceeds to codebase loading.
 
-### Writing context back
-
-After a session where you made decisions, solved problems, or made architectural changes:
-
+**Write context back** after a session:
 ```
 /context-router:project-sync
 ```
 
-This reads the current context file, optionally pulls recent repo commits, merges the session state in, and pushes the updated file. Claude does the merge — the file stays readable narrative, not a changelog dump.
-
-### Managing projects
-
+**Manage projects:**
 ```
 /context-router:project-new       ← guided flow to add a project
 /context-router:project-end       ← remove a project (config only, .md file untouched)
 ```
+
+---
 
 ### Desktop app setup
 
@@ -184,6 +180,32 @@ The `env` block is required — the Claude desktop app does not inherit shell en
 
 Restart the Claude desktop app. All 8 MCP tools will appear under `context-router` in any conversation.
 
+### Desktop app usage
+
+The desktop app has no plugin slash command system, but Claude responds to both slash-style text triggers and natural language. All of the following work:
+
+**Load context:**
+| Slash | Natural language |
+|---|---|
+| `/context courtquest` | "let's work on courtquest" |
+| `/context` | "what projects do I have?" |
+
+**Save context:**
+| Slash | Natural language |
+|---|---|
+| `/save` | "update the context file" / "save my context" |
+
+**Manage projects:**
+| Slash | Natural language | Tool called |
+|---|---|---|
+| `/project-new` | "add a project" / "track a new project" | `create_project` |
+| `/project-end` | "remove the courtquest project" / "stop tracking vv" | `delete_project` |
+| `/project-sync` | "sync my repo" / "pull in recent commits" | `sync_from_repo` |
+
+Claude will collect any required fields (key, keywords, file) before calling a tool, and will always confirm before writing or deleting.
+
+---
+
 ### Claude.ai web chat setup
 
 The Claude.ai web app cannot connect to local MCP servers. Use the generated custom instructions as a workaround.
@@ -194,15 +216,7 @@ Run this once in Claude Code:
 /context-router:project-instructions
 ```
 
-Copy the output and paste it into your Claude.ai Project instructions. After that, in any chat:
-
-```
-/context my-project        ← calls read_project immediately
-/context                   ← lists projects and asks which to load
-/save                   ← triggers write_project with confirmation
-```
-
-The instructions contain no project names or keywords — those live in the MCP server. You never need to update the pasted instructions when adding or removing projects.
+Copy the output and paste it into your Claude.ai Project instructions. The same slash triggers and natural language patterns from the desktop app table above apply here too. The instructions contain no project names or keywords — those live in the MCP server, so you never need to update them when adding or removing projects.
 
 ---
 

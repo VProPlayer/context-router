@@ -21,7 +21,8 @@ const TOOLS = [
     name: "read_project",
     description:
       "Load the most relevant project context file by scoring keyword matches. " +
-      "Use when the user mentions a project by name, acronym, or topic. " +
+      "Call proactively when the user mentions a project by name, acronym, or topic — even in natural language (e.g. 'let's work on courtquest', 'pull up my VV context'). " +
+      "Also call when the user types /context followed by any keyword. " +
       "Returns the full .md content for the best-matching project.",
     inputSchema: {
       type: "object" as const,
@@ -40,7 +41,8 @@ const TOOLS = [
     description:
       "Write updated project context back to the canonical store. " +
       "Commits via GitHub API, or via local git if claudeDataLocal is set. " +
-      "Only call after explicit user instruction ('update the context file', '/project-sync').",
+      "Call when the user says /save, 'update the context file', 'save my context', 'write back', or similar. " +
+      "Always show a summary of changes and get explicit confirmation before calling.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -52,7 +54,9 @@ const TOOLS = [
   },
   {
     name: "list_projects",
-    description: "List all configured projects — keys, keywords, files, working directories, and repo info.",
+    description:
+      "List all configured projects — keys, keywords, files, working directories, and repo info. " +
+      "Call when the user types /context with no argument, asks 'what projects do I have', 'show my projects', or similar.",
     inputSchema: { type: "object" as const, properties: {} },
   },
   {
@@ -60,6 +64,7 @@ const TOOLS = [
     description:
       "Fetch commits and diffs from a project's GitHub repo since the last sync. " +
       "Returns a structured markdown summary for Claude to merge into the project .md. " +
+      "Call when the user types /project-sync, 'sync my repo', 'pull in recent commits', or asks to update context with recent code changes. " +
       "Claude does the merge — this tool provides raw delta only.",
     inputSchema: {
       type: "object" as const,
@@ -74,7 +79,8 @@ const TOOLS = [
     description:
       "Add a new project entry to config.json. " +
       "Validates the schema, checks for duplicate keys, and writes atomically. " +
-      "Only call after confirming all fields with the user via /project-new.",
+      "Call when the user types /project-new or asks to 'add a project', 'create a new project', 'track a new project', or similar. " +
+      "Collect key, keywords, file, and optional workingDirs/repos from the user before calling — confirm all fields first.",
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -107,7 +113,8 @@ const TOOLS = [
     description:
       "Remove a project entry from config.json. " +
       "Does NOT delete the context .md file from the claude-data store. " +
-      "Only call after explicit user confirmation via /project-end.",
+      "Call when the user types /project-end or asks to 'remove a project', 'delete a project', 'stop tracking a project', or similar. " +
+      "Always confirm the key with the user before calling — this cannot be undone from within the tool.",
     inputSchema: {
       type: "object" as const,
       properties: {

@@ -1,6 +1,6 @@
 # context-router
 
-A Claude Code plugin and MCP server that gives Claude persistent, cross-surface project memory. Load the right context for any project on demand — in Claude Code via `/load`, in Claude.ai chat via a generated custom instructions block. Write state back with `/context-router:project-sync`.
+A Claude Code plugin and MCP server that gives Claude persistent, cross-surface project memory. Load the right context for any project on demand — in Claude Code via `/load`, in the Claude desktop app via the MCP server, or in Claude.ai web chat via a generated custom instructions block. Write state back with `/context-router:project-sync`.
 
 No more re-explaining context at the start of every session.
 
@@ -12,7 +12,9 @@ All project context lives in a single private GitHub repo (`claude-data`). The p
 
 **Claude Code** — `/load` is the single entry point for both project context and codebase loading. It checks the current directory for a matching project, loads its context file first, then reads the codebase as normal. `/context-router:project-sync` merges session state + recent repo commits back into the context file and pushes atomically.
 
-**Claude.ai chat** — run `/context-router:project-instructions` once to generate a custom instructions block. Paste it into your Claude.ai Project settings. After that, `/load [project]` in any chat message triggers `read_project` reliably.
+**Claude desktop app** — add the MCP server to `claude_desktop_config.json` (see [Desktop app setup](#desktop-app-setup)). All 8 tools are available natively — no custom instructions needed.
+
+**Claude.ai web chat** — the web app cannot connect to local MCP servers. Run `/context-router:project-instructions` once to generate a custom instructions block and paste it into your Claude.ai Project settings. After that, `/load [project]` in any chat message triggers `read_project` reliably.
 
 At session start, the plugin runs `git pull` on your local clone if `claudeDataLocal` is configured — otherwise no local action is taken. See [Config reference](#config-reference) for `claudeDataLocal` trade-offs.
 
@@ -158,9 +160,28 @@ This reads the current context file, optionally pulls recent repo commits, merge
 /context-router:project-end       ← remove a project (config only, .md file untouched)
 ```
 
-### Claude.ai chat setup
+### Desktop app setup
 
-Run this once:
+Add context-router to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "context-router": {
+      "command": "node",
+      "args": ["/path/to/context-router/dist/index.js"]
+    }
+  }
+}
+```
+
+Restart the Claude desktop app. All 8 MCP tools will appear under `context-router` in any conversation.
+
+### Claude.ai web chat setup
+
+The Claude.ai web app cannot connect to local MCP servers. Use the generated custom instructions as a workaround.
+
+Run this once in Claude Code:
 
 ```
 /context-router:project-instructions
@@ -225,7 +246,7 @@ The instructions contain no project names or keywords — those live in the MCP 
 
 ## MCP tools
 
-These are available directly in Claude Code and any claude.ai surface with the MCP server connected:
+These are available in Claude Code and the Claude desktop app. On Claude.ai web, the `generate_instructions` tool produces a custom instructions block that approximates MCP tool access via text commands.
 
 | Tool | Description |
 |---|---|
@@ -266,11 +287,11 @@ Or delete the cloned directory entirely.
 
 ## Cross-surface behavior
 
-| Surface | Auto-load | Slash commands | Write-back |
+| Surface | MCP tools | Slash commands | Write-back |
 |---|---|---|---|
-| Claude Code | `/load` (checks cwd, then reads codebase) | `/load [project]`, `/context-router:project-sync`, `/context-router:project-new`, `/context-router:project-end`, `/context-router:project-instructions` | Local git push |
-| Claude.ai chat | Keyword detection via custom instructions | `/load`, `/save` (enforced by instructions) | GitHub API |
-| Claude.ai Cowork | Keyword detection via custom instructions | Same as chat | GitHub API |
+| Claude Code | Native (stdio) | `/load [project]`, `/context-router:project-sync`, `/context-router:project-new`, `/context-router:project-end`, `/context-router:project-instructions` | GitHub API |
+| Claude desktop app | Native (stdio) | `/load`, `/save` | GitHub API |
+| Claude.ai web chat | Not supported — use custom instructions workaround | `/load`, `/save` (enforced by instructions) | GitHub API |
 
 ---
 

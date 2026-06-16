@@ -115,7 +115,7 @@ In Claude Code, open settings and add the plugin directory:
 }
 ```
 
-Or install via the Claude Code plugin manager using the repo URL.
+Or install via the Claude Code plugin manager using the repo URL (coming soon).
 
 ---
 

@@ -4,7 +4,7 @@ A Claude Code plugin and MCP server that gives Claude persistent, cross-surface 
 
 No more re-explaining context at the start of every session.
 
-NOTE: this is a work in progress. Expect troubleshooting occasionally.
+NOTE: this is a work in progress. Expect troubleshooting occasionally. Claude Code slash commands don't yet work, fix incoming...
 
 ---
 

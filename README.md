@@ -1,10 +1,9 @@
 # context-router
 
-A Claude Code plugin and MCP server that gives Claude persistent, cross-surface project memory. Load the right context for any project on demand — in Claude Code via `/route`, in the Claude desktop app via the MCP server, or in Claude.ai web chat via a generated custom instructions block. Write state back with `/context-router:project-sync`.
+A Claude plugin and MCP server that gives Claude persistent, cross-surface project memory. Load the right context for any project on demand — in Claude Code via `/route`, in the Claude desktop app via the MCP server, or in Claude.ai web chat via a generated custom instructions block. Write state back with `/context-router:project-sync`.
 
 No more re-explaining context at the start of every session.
 
-NOTE: this is a work in progress. Expect troubleshooting occasionally. Claude Code slash commands don't yet work, fix incoming...
 
 ---
 
@@ -12,19 +11,13 @@ NOTE: this is a work in progress. Expect troubleshooting occasionally. Claude Co
 
 All project context lives in a single private GitHub repo (`claude-data`). The plugin routes between projects by keyword scoring and directory matching — load the right file, write it back when you're done. Reads and writes go through the GitHub API by default; a local clone is optional and not recommended (see [Config reference](#config-reference)).
 
-**Claude Code** — `/route` is the single entry point for both project context and codebase loading. It checks the current directory for a matching project, loads its context file first, then reads the codebase as normal. `/context-router:project-sync` merges session state + recent repo commits back into the context file and pushes atomically.
-
 **Claude desktop app** — add the MCP server to `claude_desktop_config.json` (see [Desktop app setup](#desktop-app-setup)). All 8 tools are available natively — no custom instructions needed.
 
 **Claude.ai web chat** — the web app cannot connect to local MCP servers. Run `/context-router:project-instructions` once to generate a custom instructions block and paste it into your Claude.ai Project settings. After that, `/route [project]` in any chat message triggers `read_project` reliably.
 
-At Claude Code session start, the plugin runs `git pull` on your local clone if `claudeDataLocal` is configured — otherwise no local action is taken. See [Config reference](#config-reference) for `claudeDataLocal` trade-offs.
-
 ---
 
 ## Requirements
-
-- [Claude Code](https://claude.ai/code) (plugin system, stable since Oct 2025)
 - Node.js 20+
 - A private GitHub repo to use as your `claude-data` store
 - A GitHub personal access token with `repo` scope
@@ -62,7 +55,6 @@ Edit `~/.config/context-router/config.json`:
     "my-project": {
       "keywords": ["MyProject", "MP", "relevant-term"],
       "file": "my-project.md",
-      "workingDirs": ["~/Developer/my-project"],
       "writeBack": true
     }
   }
@@ -107,54 +99,9 @@ git push -u origin main
 
 > **Note:** A local clone (`claudeDataLocal`) is not required and not recommended — a stale or diverged clone can cause the plugin to read outdated context. The GitHub API is the default for all reads and writes. Only set `claudeDataLocal` if you have a specific offline use case and understand the trade-offs.
 
-### 5. Install the plugin in Claude Code
-
-Add context-router to `~/.claude/settings.json` using Claude Code's `extraKnownMarketplaces` system:
-
-```json
-{
-  "enabledPlugins": {
-    "context-router@context-router": true
-  },
-  "extraKnownMarketplaces": {
-    "context-router": {
-      "source": {
-        "source": "github",
-        "repo": "VProPlayer/context-router"
-      }
-    }
-  }
-}
-```
-
-If you already have other plugins in `enabledPlugins` or `extraKnownMarketplaces`, add these entries to the existing objects — don't replace them. Restart Claude Code after saving.
-
 ---
 
 ## Usage
-
-### Claude Code
-
-`/route` is the single entry point for both project context and codebase loading. It checks the current directory for a matching project first, then reads the codebase as normal.
-
-```
-/route                  ← matches cwd to a project, then reads codebase
-/route courtquest       ← loads courtquest context, then reads codebase
-/route vv               ← loads vv context, then reads codebase
-```
-
-If no project matches, `/route` skips project context silently and proceeds to codebase loading.
-
-**Write context back** after a session:
-```
-/context-router:project-sync
-```
-
-**Manage projects:**
-```
-/context-router:project-new       ← guided flow to add a project
-/context-router:project-end       ← remove a project (config only, .md file untouched)
-```
 
 ---
 
@@ -234,7 +181,6 @@ Copy the output and paste it into your Claude.ai Project instructions. The same 
     "project-key": {
       "keywords": ["Name", "Acronym", "domain-term"],
       "file": "project-key.md",
-      "workingDirs": ["~/Developer/project-dir"],
       "writeBack": true,
       "repo": {
         "owner": "github-username",
@@ -256,7 +202,6 @@ Copy the output and paste it into your Claude.ai Project instructions. The same 
 | `projects` | yes | Map of project key → config |
 | `keywords` | yes | Topic signals for keyword routing. Include the project name, acronyms, and domain terms |
 | `file` | yes | Filename in the claude-data store (e.g. `my-project.md`) |
-| `workingDirs` | no | Directories that trigger this project in `/route` |
 | `writeBack` | no | Set to `false` to make the project read-only (default: `true`) |
 | `repo` | no | Project's source code repo for `/project-sync` commit history |
 | `repo.watchPaths` | no | Only report changes under these paths during sync (supports multiple repositories) |
@@ -267,7 +212,7 @@ Copy the output and paste it into your Claude.ai Project instructions. The same 
 
 ## MCP tools
 
-These are available in Claude Code and the Claude desktop app. On Claude.ai web, the `generate_instructions` tool produces a custom instructions block that approximates MCP tool access via text commands.
+These are available in Claude desktop app and Claude.ai web. On Claude.ai web, the `generate_instructions` tool produces a custom instructions block that approximates MCP tool access via text commands.
 
 | Tool | Description |
 |---|---|
@@ -283,10 +228,6 @@ These are available in Claude Code and the Claude desktop app. On Claude.ai web,
 ---
 
 ## Removal
-
-### Remove the plugin from Claude Code
-
-Remove the `"context-router@context-router"` entry from `enabledPlugins` and the `"context-router"` entry from `extraKnownMarketplaces` in `~/.claude/settings.json`. The plugin stops running immediately after restarting Claude Code.
 
 ### Remove config and data
 
@@ -310,7 +251,6 @@ Or delete the cloned directory entirely.
 
 | Surface | MCP tools | Slash commands | Write-back |
 |---|---|---|---|
-| Claude Code | Native (stdio) | `/route [project]`, `/context-router:project-sync`, `/context-router:project-new`, `/context-router:project-end`, `/context-router:project-instructions` | GitHub API |
 | Claude desktop app | Native (stdio) | `/route`, `/save` | GitHub API |
 | Claude.ai web chat | Not supported — use custom instructions workaround | `/route`, `/save` (enforced by instructions) | GitHub API |
 

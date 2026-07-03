@@ -129,25 +129,25 @@ Restart the Claude desktop app. All 8 MCP tools will appear under `context-route
 
 ### Desktop app usage
 
-The desktop app has no plugin slash command system, but Claude responds to both slash-style text triggers and natural language. All of the following work:
+The desktop app has no plugin slash command system, but Claude responds to slash-style text triggers. All of the following work:
 
 **Load context:**
-| Slash | Natural language |
-|---|---|
-| `/route courtquest` | "let's work on courtquest" |
-| `/route` | "what projects do I have?" |
+| Slash |
+|---|
+| `/route courtquest` |
+| `/route` |
 
 **Save context:**
-| Slash | Natural language |
-|---|---|
-| `/save` | "update the context file" / "save my context" |
+| Slash |
+|---|
+| `/save` |
 
 **Manage projects:**
-| Slash | Natural language | Tool called |
-|---|---|---|
-| `/project-new` | "add a project" / "track a new project" | `create_project` |
-| `/project-end` | "remove the courtquest project" / "stop tracking vv" | `delete_project` |
-| `/project-sync` | "sync my repo" / "pull in recent commits" | `sync_from_repo` |
+| Slash | Tool called |
+|---|---|
+| `/project-new` | `create_project` |
+| `/project-end` | `delete_project` |
+| `/project-sync` | `sync_from_repo` |
 
 Claude will collect any required fields (key, keywords, file) before calling a tool, and will always confirm before writing or deleting.
 
@@ -163,7 +163,7 @@ Run this once in Claude Code:
 /context-router:project-instructions
 ```
 
-Copy the output and paste it into your Claude.ai Project instructions. The same slash triggers and natural language patterns from the desktop app table above apply here too. The instructions contain no project names or keywords — those live in the MCP server, so you never need to update them when adding or removing projects.
+Copy the output and paste it into your Claude.ai Project instructions. The same slash triggers from the desktop app table above apply here too. The instructions contain no project names or keywords — those live in the MCP server, so you never need to update them when adding or removing projects.
 
 ---
 

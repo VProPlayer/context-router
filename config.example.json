@@ -8,13 +8,11 @@
     "project-one": {
       "keywords": ["Project One", "P1", "relevant-term"],
       "file": "project-one.md",
-      "workingDirs": ["~/Developer/project-one"],
       "writeBack": true
     },
     "project-two": {
       "keywords": ["Project Two", "P2", "another-term"],
       "file": "project-two.md",
-      "workingDirs": ["~/Developer/project-two"],
       "writeBack": true,
       "repo": {
         "owner": "YOUR_GITHUB_USERNAME",

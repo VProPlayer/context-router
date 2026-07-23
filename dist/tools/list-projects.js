@@ -14,7 +14,7 @@ export function listProjects(config) {
         if (project.repos.length > 0) {
             lines.push(`- **Repos:**`);
             for (const r of project.repos) {
-                lines.push(`  - \`${r.owner}/${r.name}\` (${r.branch}) — watch: ${r.watchPaths.join(", ") || "all"} | last synced: ${r.lastSyncedCommit || "never"}`);
+                lines.push(`  - \`${r.owner}/${r.name}\` (${r.branch})`);
             }
         }
         lines.push("");

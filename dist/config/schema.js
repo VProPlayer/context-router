@@ -3,9 +3,6 @@ export const RepoConfigSchema = z.object({
     owner: z.string(),
     name: z.string(),
     branch: z.string().default("main"),
-    watchPaths: z.array(z.string()).default([]),
-    lastSyncedCommit: z.string().default(""),
-    maxCommits: z.number().int().positive().default(20),
 });
 export const ProjectSchema = z.object({
     keywords: z.array(z.string()).min(1),

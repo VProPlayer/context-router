@@ -7,7 +7,6 @@ import { getConfigPath } from "./utils/path.js";
 import { readProject } from "./tools/read-project.js";
 import { writeProject } from "./tools/write-project.js";
 import { listProjects } from "./tools/list-projects.js";
-import { syncFromRepo } from "./tools/sync-from-repo.js";
 import { readRepoFile } from "./tools/read-repo-file.js";
 import { createProject } from "./tools/create-project.js";
 import { deleteProject } from "./tools/delete-project.js";
@@ -16,8 +15,7 @@ const TOOLS = [
     {
         name: "read_project",
         description: "Load the most relevant project context file by scoring keyword matches. " +
-            "Call proactively when the user mentions a project by name, acronym, or topic — even in natural language (e.g. 'let's work on courtquest', 'pull up my VV context'). " +
-            "Also call when the user types /route followed by any keyword. " +
+            "Call when the user types /route followed by any keyword. " +
             "Returns the full .md content for the best-matching project.",
         inputSchema: {
             type: "object",
@@ -35,7 +33,7 @@ const TOOLS = [
         name: "write_project",
         description: "Write updated project context back to the canonical store. " +
             "Commits via GitHub API, or via local git if claudeDataLocal is set. " +
-            "Call when the user says /save, 'update the context file', 'save my context', 'write back', or similar. " +
+            "Call when the user types /save. " +
             "Always show a summary of changes and get explicit confirmation before calling.",
         inputSchema: {
             type: "object",
@@ -49,28 +47,14 @@ const TOOLS = [
     {
         name: "list_projects",
         description: "List all configured projects — keys, keywords, files, working directories, and repo info. " +
-            "Call when the user types /route with no argument, asks 'what projects do I have', 'show my projects', or similar.",
+            "Call when the user types /route with no argument.",
         inputSchema: { type: "object", properties: {} },
-    },
-    {
-        name: "sync_from_repo",
-        description: "Fetch commits and diffs from a project's GitHub repo since the last sync. " +
-            "Returns a structured markdown summary for Claude to merge into the project .md. " +
-            "Call when the user types /project-sync, 'sync my repo', 'pull in recent commits', or asks to update context with recent code changes. " +
-            "Claude does the merge — this tool provides raw delta only.",
-        inputSchema: {
-            type: "object",
-            properties: {
-                project: { type: "string", description: "Project key to sync repo state for." },
-            },
-            required: ["project"],
-        },
     },
     {
         name: "create_project",
         description: "Add a new project entry to config.json. " +
             "Validates the schema, checks for duplicate keys, and writes atomically. " +
-            "Call when the user types /project-new or asks to 'add a project', 'create a new project', 'track a new project', or similar. " +
+            "Call when the user types /project-new. " +
             "Collect key, keywords, file, and optional workingDirs/repos from the user before calling — confirm all fields first.",
         inputSchema: {
             type: "object",
@@ -79,18 +63,16 @@ const TOOLS = [
                 keywords: { type: "array", items: { type: "string" }, description: "Topic signals that trigger this project's context" },
                 file: { type: "string", description: "Filename in the claude-data store (e.g. 'my-project.md')" },
                 workingDirs: { type: "array", items: { type: "string" }, description: "Local directories that trigger this project in /load" },
-                writeBack: { type: "boolean", description: "Whether /project-sync can write back (default: true)" },
+                writeBack: { type: "boolean", description: "Whether /save can write back (default: true)" },
                 repos: {
                     type: "array",
-                    description: "GitHub repos to sync commits from (supports multiple per project)",
+                    description: "GitHub repos to read files from (supports multiple per project)",
                     items: {
                         type: "object",
                         properties: {
                             owner: { type: "string" },
                             name: { type: "string" },
                             branch: { type: "string" },
-                            watchPaths: { type: "array", items: { type: "string" } },
-                            maxCommits: { type: "number" },
                         },
                         required: ["owner", "name"],
                     },
@@ -103,7 +85,7 @@ const TOOLS = [
         name: "delete_project",
         description: "Remove a project entry from config.json. " +
             "Does NOT delete the context .md file from the claude-data store. " +
-            "Call when the user types /project-end or asks to 'remove a project', 'delete a project', 'stop tracking a project', or similar. " +
+            "Call when the user types /project-end. " +
             "Always confirm the key with the user before calling — this cannot be undone from within the tool.",
         inputSchema: {
             type: "object",
@@ -154,10 +136,6 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
             case "list_projects": {
                 return { content: [{ type: "text", text: listProjects(config) }] };
             }
-            case "sync_from_repo": {
-                const { project } = z.object({ project: z.string() }).parse(args);
-                return { content: [{ type: "text", text: await syncFromRepo(config, project) }] };
-            }
             case "create_project": {
                 const input = z.object({
                     key: z.string(),
@@ -169,9 +147,6 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
                         owner: z.string(),
                         name: z.string(),
                         branch: z.string().default("main"),
-                        watchPaths: z.array(z.string()).default([]),
-                        maxCommits: z.number().default(20),
-                        lastSyncedCommit: z.string().default(""),
                     })).default([]),
                 }).parse(args);
                 const { key, ...project } = input;

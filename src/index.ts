@@ -10,7 +10,6 @@ import { getConfigPath } from "./utils/path.js";
 import { readProject } from "./tools/read-project.js";
 import { writeProject } from "./tools/write-project.js";
 import { listProjects } from "./tools/list-projects.js";
-import { syncFromRepo } from "./tools/sync-from-repo.js";
 import { readRepoFile } from "./tools/read-repo-file.js";
 import { createProject } from "./tools/create-project.js";
 import { deleteProject } from "./tools/delete-project.js";
@@ -59,21 +58,6 @@ const TOOLS = [
     inputSchema: { type: "object" as const, properties: {} },
   },
   {
-    name: "sync_from_repo",
-    description:
-      "Fetch commits and diffs from a project's GitHub repo since the last sync. " +
-      "Returns a structured markdown summary for Claude to merge into the project .md. " +
-      "Call when the user types /project-sync. " +
-      "Claude does the merge — this tool provides raw delta only.",
-    inputSchema: {
-      type: "object" as const,
-      properties: {
-        project: { type: "string", description: "Project key to sync repo state for." },
-      },
-      required: ["project"],
-    },
-  },
-  {
     name: "create_project",
     description:
       "Add a new project entry to config.json. " +
@@ -87,18 +71,16 @@ const TOOLS = [
         keywords: { type: "array", items: { type: "string" }, description: "Topic signals that trigger this project's context" },
         file: { type: "string", description: "Filename in the claude-data store (e.g. 'my-project.md')" },
         workingDirs: { type: "array", items: { type: "string" }, description: "Local directories that trigger this project in /load" },
-        writeBack: { type: "boolean", description: "Whether /project-sync can write back (default: true)" },
+        writeBack: { type: "boolean", description: "Whether /save can write back (default: true)" },
         repos: {
           type: "array",
-          description: "GitHub repos to sync commits from (supports multiple per project)",
+          description: "GitHub repos to read files from (supports multiple per project)",
           items: {
             type: "object",
             properties: {
               owner: { type: "string" },
               name: { type: "string" },
               branch: { type: "string" },
-              watchPaths: { type: "array", items: { type: "string" } },
-              maxCommits: { type: "number" },
             },
             required: ["owner", "name"],
           },
@@ -172,10 +154,6 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       case "list_projects": {
         return { content: [{ type: "text" as const, text: listProjects(config) }] };
       }
-      case "sync_from_repo": {
-        const { project } = z.object({ project: z.string() }).parse(args);
-        return { content: [{ type: "text" as const, text: await syncFromRepo(config, project) }] };
-      }
       case "create_project": {
         const input = z.object({
           key: z.string(),
@@ -187,9 +165,6 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
             owner: z.string(),
             name: z.string(),
             branch: z.string().default("main"),
-            watchPaths: z.array(z.string()).default([]),
-            maxCommits: z.number().default(20),
-            lastSyncedCommit: z.string().default(""),
           })).default([]),
         }).parse(args);
         const { key, ...project } = input;

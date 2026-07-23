@@ -14,14 +14,13 @@
       "keywords": ["Project Two", "P2", "another-term"],
       "file": "project-two.md",
       "writeBack": true,
-      "repo": {
-        "owner": "YOUR_GITHUB_USERNAME",
-        "name": "project-two-repo",
-        "branch": "main",
-        "watchPaths": ["src/", "README.md"],
-        "lastSyncedCommit": "",
-        "maxCommits": 20
-      }
+      "repos": [
+        {
+          "owner": "YOUR_GITHUB_USERNAME",
+          "name": "project-two-repo",
+          "branch": "main"
+        }
+      ]
     }
   }
 }

@@ -1,6 +1,6 @@
 # context-router
 
-A Claude plugin and MCP server that gives Claude persistent, cross-surface project memory. Load the right context for any project on demand — in Claude Code via `/route`, in the Claude desktop app via the MCP server, or in Claude.ai web chat via a generated custom instructions block. Write state back with `/context-router:project-sync`.
+A Claude plugin and MCP server that gives Claude persistent, cross-surface project memory. Load the right context for any project on demand — in Claude Code via `/route`, in the Claude desktop app via the MCP server, or in Claude.ai web chat via a generated custom instructions block. Write state back with `/save`.
 
 No more re-explaining context at the start of every session.
 
@@ -61,7 +61,7 @@ Edit `~/.config/context-router/config.json`:
 }
 ```
 
-See [Config reference](#config-reference) for all options including repo sync.
+See [Config reference](#config-reference) for all options.
 
 ### 3. Create a GitHub token
 
@@ -147,7 +147,6 @@ The desktop app has no plugin slash command system, but Claude responds to slash
 |---|---|
 | `/project-new` | `create_project` |
 | `/project-end` | `delete_project` |
-| `/project-sync` | `sync_from_repo` |
 
 Claude will collect any required fields (key, keywords, file) before calling a tool, and will always confirm before writing or deleting.
 
@@ -182,14 +181,13 @@ Copy the output and paste it into your Claude.ai Project instructions. The same 
       "keywords": ["Name", "Acronym", "domain-term"],
       "file": "project-key.md",
       "writeBack": true,
-      "repo": {
-        "owner": "github-username",
-        "name": "project-repo",
-        "branch": "main",
-        "watchPaths": ["src/", "README.md"],
-        "lastSyncedCommit": "",
-        "maxCommits": 20
-      }
+      "repos": [
+        {
+          "owner": "github-username",
+          "name": "project-repo",
+          "branch": "main"
+        }
+      ]
     }
   }
 }
@@ -203,10 +201,7 @@ Copy the output and paste it into your Claude.ai Project instructions. The same 
 | `keywords` | yes | Topic signals for keyword routing. Include the project name, acronyms, and domain terms |
 | `file` | yes | Filename in the claude-data store (e.g. `my-project.md`) |
 | `writeBack` | no | Set to `false` to make the project read-only (default: `true`) |
-| `repo` | no | Project's source code repo for `/project-sync` commit history |
-| `repo.watchPaths` | no | Only report changes under these paths during sync (supports multiple repositories) |
-| `repo.lastSyncedCommit` | no | SHA of last synced commit. Updated manually after each sync |
-| `repo.maxCommits` | no | Cap on commits fetched per sync (default: 20) |
+| `repos` | no | Project's source code repos, used by `read_repo_file` (supports multiple per project) |
 
 ---
 
@@ -221,7 +216,6 @@ These are available in Claude desktop app and Claude.ai web. On Claude.ai web, t
 | `list_projects` | Show all configured projects |
 | `create_project` | Add a project to config.json |
 | `delete_project` | Remove a project from config.json |
-| `sync_from_repo` | Fetch commits + diffs from a project's source repo |
 | `read_repo_file` | Read a file from a project's source repo at HEAD |
 | `generate_instructions` | Generate Claude.ai custom instructions from current config |
 

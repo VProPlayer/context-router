@@ -21,7 +21,5 @@ You have access to context-router MCP tools for loading and saving project conte
 
 **\`/project-end\`** — Confirm the project key with the user, then call \`delete_project\`. The .md file in the claude-data repo is not deleted.
 
-**\`/project-sync\`** — Call \`sync_from_repo\` for the relevant project, then merge the returned summary into the project context.
-
 These instructions never need updating — project names and keywords live in the MCP server, not here.`;
 }

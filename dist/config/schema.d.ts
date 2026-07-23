@@ -3,23 +3,14 @@ export declare const RepoConfigSchema: z.ZodObject<{
     owner: z.ZodString;
     name: z.ZodString;
     branch: z.ZodDefault<z.ZodString>;
-    watchPaths: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
-    lastSyncedCommit: z.ZodDefault<z.ZodString>;
-    maxCommits: z.ZodDefault<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
     owner: string;
     name: string;
     branch: string;
-    watchPaths: string[];
-    lastSyncedCommit: string;
-    maxCommits: number;
 }, {
     owner: string;
     name: string;
     branch?: string | undefined;
-    watchPaths?: string[] | undefined;
-    lastSyncedCommit?: string | undefined;
-    maxCommits?: number | undefined;
 }>;
 export declare const ProjectSchema: z.ZodObject<{
     keywords: z.ZodArray<z.ZodString, "many">;
@@ -30,23 +21,14 @@ export declare const ProjectSchema: z.ZodObject<{
         owner: z.ZodString;
         name: z.ZodString;
         branch: z.ZodDefault<z.ZodString>;
-        watchPaths: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
-        lastSyncedCommit: z.ZodDefault<z.ZodString>;
-        maxCommits: z.ZodDefault<z.ZodNumber>;
     }, "strip", z.ZodTypeAny, {
         owner: string;
         name: string;
         branch: string;
-        watchPaths: string[];
-        lastSyncedCommit: string;
-        maxCommits: number;
     }, {
         owner: string;
         name: string;
         branch?: string | undefined;
-        watchPaths?: string[] | undefined;
-        lastSyncedCommit?: string | undefined;
-        maxCommits?: number | undefined;
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
     keywords: string[];
@@ -57,9 +39,6 @@ export declare const ProjectSchema: z.ZodObject<{
         owner: string;
         name: string;
         branch: string;
-        watchPaths: string[];
-        lastSyncedCommit: string;
-        maxCommits: number;
     }[];
 }, {
     keywords: string[];
@@ -70,9 +49,6 @@ export declare const ProjectSchema: z.ZodObject<{
         owner: string;
         name: string;
         branch?: string | undefined;
-        watchPaths?: string[] | undefined;
-        lastSyncedCommit?: string | undefined;
-        maxCommits?: number | undefined;
     }[] | undefined;
 }>;
 export declare const ClaudeDataRepoSchema: z.ZodObject<{
@@ -112,23 +88,14 @@ export declare const ConfigSchema: z.ZodObject<{
             owner: z.ZodString;
             name: z.ZodString;
             branch: z.ZodDefault<z.ZodString>;
-            watchPaths: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
-            lastSyncedCommit: z.ZodDefault<z.ZodString>;
-            maxCommits: z.ZodDefault<z.ZodNumber>;
         }, "strip", z.ZodTypeAny, {
             owner: string;
             name: string;
             branch: string;
-            watchPaths: string[];
-            lastSyncedCommit: string;
-            maxCommits: number;
         }, {
             owner: string;
             name: string;
             branch?: string | undefined;
-            watchPaths?: string[] | undefined;
-            lastSyncedCommit?: string | undefined;
-            maxCommits?: number | undefined;
         }>, "many">>;
     }, "strip", z.ZodTypeAny, {
         keywords: string[];
@@ -139,9 +106,6 @@ export declare const ConfigSchema: z.ZodObject<{
             owner: string;
             name: string;
             branch: string;
-            watchPaths: string[];
-            lastSyncedCommit: string;
-            maxCommits: number;
         }[];
     }, {
         keywords: string[];
@@ -152,9 +116,6 @@ export declare const ConfigSchema: z.ZodObject<{
             owner: string;
             name: string;
             branch?: string | undefined;
-            watchPaths?: string[] | undefined;
-            lastSyncedCommit?: string | undefined;
-            maxCommits?: number | undefined;
         }[] | undefined;
     }>>;
 }, "strip", z.ZodTypeAny, {
@@ -172,9 +133,6 @@ export declare const ConfigSchema: z.ZodObject<{
             owner: string;
             name: string;
             branch: string;
-            watchPaths: string[];
-            lastSyncedCommit: string;
-            maxCommits: number;
         }[];
     }>;
     claudeDataLocal?: string | undefined;
@@ -193,9 +151,6 @@ export declare const ConfigSchema: z.ZodObject<{
             owner: string;
             name: string;
             branch?: string | undefined;
-            watchPaths?: string[] | undefined;
-            lastSyncedCommit?: string | undefined;
-            maxCommits?: number | undefined;
         }[] | undefined;
     }>;
     claudeDataLocal?: string | undefined;

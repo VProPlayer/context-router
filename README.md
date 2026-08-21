@@ -1,4 +1,4 @@
-# context-router
+# context-router.
 
 A Claude plugin and MCP server that gives Claude persistent, cross-surface project memory. Load the right context for any project on demand — in Claude Code via `/route`, in the Claude desktop app via the MCP server, or in Claude.ai web chat via a generated custom instructions block. Write state back with `/save`.
 
